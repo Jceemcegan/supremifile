@@ -67,11 +67,11 @@ jobs:
         
 #        git clone --depth 1 https://github.com/garypang13/my-packages && mv -f my-packages/* ./ ; rm -Rf my-packages &
         
-        ( for ipk in $(ls applications); do
-        	if [[ $(ls -l applications/$ipk/po | wc -l) -gt 3 ]]; then
-        		rm -rf applications/$ipk
-        	fi
-        done ) &
+#        ( for ipk in $(ls applications); do
+#        	if [[ $(ls -l applications/$ipk/po | wc -l) -gt 3 ]]; then
+#        		rm -rf applications/$ipk
+#        	fi
+#        done ) &
     - name: SSH connection to Actions
       uses: garypang13/debugger-action@master
       if: 1 == 0
