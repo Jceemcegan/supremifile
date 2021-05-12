@@ -67,7 +67,7 @@ jobs:
 
     - name: Delete duplicated packages
       run: |
-        mv ls
+        ls
     - name: Apply patches
       run: |
         ls
