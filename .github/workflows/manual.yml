@@ -1,0 +1,174 @@
+# This is a basic workflow that is manually triggered
+
+name: Manual workflow
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      name:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'Person to greet'
+        # Default value if no value is explicitly provided
+        default: 'World'
+        # Input has to be provided for the workflow to run
+        required: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "greet"
+  greet:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Runs a single command using the runners shell
+    - name: Send greeting
+      : echo "Hello ${{ github.event.inputs.name 
+# This is free software, lisence use MIT.
+# 
+# Copyright (C) 2020 KFERMercer <KFER.Mercer@gmail.com>
+# 
+# <https://github.com/KFERMercer/OpenWrt-CI>
+#
+
+name: Merge-upstream
+on:
+  push:
+    paths:
+      - '.github/workflows/upstream.yml'
+      - 'diy/**'
+  workflow_dispatch:
+  schedule:
+    - cron: 0 */12 * * *
+  watch:
+    types: started
+  repository_dispatch:
+
+jobs:
+  merge:
+    if: github.event.repository.owner.id == github.event.sender.id
+    runs-on: Ubuntu-20.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Set git identity
+      run : |
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+    - name: Syn upstream
+      run: |
+        rm -rf `find -maxdepth 1 -type d -name "[!.]*" ! -path "./diy"`
+        git rm -r --cache *
+        
+        function git_sparse_clone() (
+          branch="$1" rurl="$2" localdir="$3" && shift 3
+          git clone -b $branch --depth 1 --filter=blob:none --sparse $rurl $localdir
+          cd $localdir
+          git sparse-checkout init --cone
+          git sparse-checkout set $@
+          mv -n $@ ../
+          cd ..
+          rm -rf $localdir
+          )
+#        svn export --force https://github.com/immortalwrt/luci/trunk/applications &
+#        git clone --depth 1 https://github.com/Lienol/openwrt-package &
+#        git clone --depth 1 https://github.com/xiaorouji/openwrt-passwall &
+#       svn export --force https://github.com/coolsnowwolf/lede/trunk/package/lean ledelean &
+        
+ #       git_sparse_clone master "https://github.com/immortalwrt/packages" "immpackages" net/mwol net/nps net/verysync net/sub-web \
+ #       net/subconverter net/ngrokc net/oscam net/njitclient net/scutclient net/gost admin/bpytop libs/jpcre2 libs/rapidjson libs/libcron \
+#        libs/quickjspp utils/cpulimit utils/filebrowser &
+        
+  #      git_sparse_clone master "https://github.com/openwrt/packages" "oppackages" net/shadowsocks-libev net/https-dns-proxy net/openvpn \
+#        utils/cgroupfs-mount devel/ninja &
+        
+#        git_sparse_clone master "https://github.com/x-wrt/com.x-wrt" "x-wrt" natflow luci-app-wizard luci-app-macvlan &
+        
+#        git_sparse_clone master "https://github.com/immortalwrt/immortalwrt" "immwrt" package/lean package/kernel/mt7601u-ap package/kernel/mtk-eip93 \
+#        package/kernel/r8152 package/kernel/r8168 package/kernel/rtl8188eu package/kernel/rtl8812au-ac \
+#        package/kernel/rtl8821cu package/kernel/rtl88x2bu
+        
+#        git clone --depth 1 https://github.com/garypang13/my-packages && mv -f my-packages/* ./ ; rm -Rf my-packages &$        git clone --depth 1 https://github.com/garypang13/luci-app-bypass &        
+#        git clone --depth 1 https://github.com/garypang13/luci-app-dnsfilter &
+#        git clone --depth 1 https://github.com/garypang13/openwrt-static-qb && mv -f openwrt-static-qb/* ./ ; rm -Rf openwrt-static-qb &
+ #       git clone --depth 1 https://github.com/garypang13/aria2 &
+#        git clone --depth 1 https://github.com/garypang13/smartdns-le &
+#        git clone --depth 1 https://github.com/garypang13/luci-app-eqos &
+#        git clone --depth 1 https://github.com/garypang13/luci-app-baidupcs-web &
+
+        svn co https://github.com/immortalwrt/immortalwrt/trunk/package/lean/shadowsocksr-libev &
+        svn co https://github.com/xiaoqingfengATGH/feeds-xiaoqingfeng/trunk/luci-app-homeconnect &
+        
+        ( for ipk in $(ls applications); do
+        	if [[ $(ls -l applications/$ipk/po | wc -l) -gt 3 ]]; then
+        		rm -rf applications/$ipk
+        	fi
+        done ) &
+    - name: SSH connection to Actions
+      uses: garypang13/debugger-action@master
+      if: 1 == 0
+
+    - name: Delete duplicated packages
+      run: |
+        mv -n applications/* ./ ; rm -Rf applications
+        mv -n openwrt-package/* ./ ; rm -Rf openwrt-package
+        mv -n openwrt-passwall/* ./ ; rm -Rf openwrt-passwall
+        mv -n lean/* ./ ; rm -Rf lean
+        mv -n ledelean/* ./ ; rm -Rf ledelean
+        rm -Rf */.git */.svn qt5 openwrt-{chinadns*,simple-obfs,v2ray-plugin,dnsforwarder} cups* subweb wget autosamba \
+        mt-drivers coremark npc luci-app-{flowoffload,yggdrasil,sfe,appfilter,unblockneteasemusic*,adbyby-plus,advancedsetting,softethervpn,chinadns,docker,samba4,smstool,cifs-mount} \
+        fcgiwrap ddns-scripts_{aliyun,dnspod} UnblockNeteaseMusicGo ipv6-helper adbyby ChinaDNS luci-theme-netgear csstidy
+        mv mt/drivers mt/mt-drivers
+        cp -Rf mt/* ./ && rm -Rf mt
+    - name: Apply patches
+      run: |
+        sed -i "s/\r//g" open-app-filter/src/appfilter_ubus.c
+        find "diy/patches" -type f -name '*.patch' -print0 | sort -z | xargs -I % -t -0 -n 1 sh -c "cat '%'  | patch -d './' -p1 -E --forward --no-backup-if-mismatch"
+    - name: Modify
+      run: |
+        getversion() {
+        	ver=$(basename $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$1/releases/latest) | grep -o -E "[0-9].+")
+        	[ $ver ] && echo $ver || git ls-remote --tags git://github.com/$1 | cut -d/ -f3- | sort -t. -nk1,2 -k3 | awk '/^[^{]*$/{version=$1}END{print version}' | grep -o -E "[0-9].+"
+        }
+        # sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$(getversion XTLS/Xray-core)/g" xray-core/Makefile &
+        # sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$(getversion klzgrad/naiveproxy)/g" naiveproxy/Makefile &
+        
+        bash diy/create_acl_for_luci.sh -a || true &
+        bash diy/convert_translation.sh -a || true &
+        
+        sed -i \
+        	-e 's/shadowsocksr-libev-alt/shadowsocksr-libev-ssr-redir/g' \
+        	-e 's/shadowsocksr-libev-server/shadowsocksr-libev-ssr-server/g' \
+        	-e 's?\.\./\.\./luci.mk?$(TOPDIR)/feeds/luci/luci.mk?g' \
+        	-e 's?\.\./\.\./devel/ninja?\.\./ninja?g' \
+        	-e 's/ca-certificates/ca-bundle/g' \
+        	-e 's/@GHCODELOAD/https:\/\/codeload.github.com/' \
+        */Makefile &
+        
+        sed -i "/minisign:minisign/d" luci-app-dnscrypt-proxy2/Makefile
+        sed -i 's/+docker-ce/+dockerd \\\n\t+cgroupfs-mount/' luci-app-dockerman/Makefile
+        sed -i 's/+amule/+amule +antileech/' luci-app-amule/Makefile
+        rm -f subconverter/patches/010-missing-header.patch
+        sed -i 's?include \.\./\.\./\(lang\|devel\)?include $(TOPDIR)/feeds/packages/\1?g' */{Makefile,*.mk} &
+        sed -i '/\/etc\/config\/AdGuardHome/a /etc/config/AdGuardHome.yaml' luci-app-adguardhome/Makefile
+        sed -i 's/+rclone\( \|$\)/+rclone +fuse-utils\1/g' luci-app-rclone/Makefile
+        sed -i 's/+libcap /+libcap +libcap-bin /' luci-app-openclash/Makefile
+        find */luasrc/view/ -maxdepth 2 -name "*.htm" | xargs -i sed -i 's?"http://" + window.location.hostname?window.location.protocol + "//" + window.location.hostname?g' {} &
+        find ./*/ -maxdepth 1 -name "Makefile" ! -path "*tinyfecvpn*" ! -path "*gowebdav*" | xargs -i sed -i "s/PKG_HASH:=.*/PKG_HASH:=skip/g" {} &
+        # sed -i 's/\(add ucitrack \(.*\)\)/\1\n\tservice \2 enable/g' luci-app*/root/etc/uci-defaults/*
+    - name: Apply
+      run: |
+        git add .
+        git commit -m "update" || true
+        git push
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 1
+        keep_minimum_runs: 3
